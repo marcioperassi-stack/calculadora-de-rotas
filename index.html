@@ -3,7 +3,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101827">
 <title>Calculadora de Rotas</title>
 <style>
@@ -19,15 +19,17 @@ main{padding:20px 14px 35px}
 .titulo{font-size:17px;font-weight:bold;margin:0 0 16px}
 label{display:block;font-size:13px;font-weight:bold;margin:13px 0 7px}
 input{width:100%;min-width:0;padding:13px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;background:white;color:#182230}
-input:focus{outline:2px solid #86efac}
+input:focus{outline:2px solid #86efac;border-color:#16a34a}
 .linha{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .botao{width:100%;border:0;border-radius:11px;padding:15px;font-size:16px;font-weight:bold;cursor:pointer}
 .primario{background:#16a34a;color:white}
+.secundario{background:#e2e8f0;color:#101827}
 .resultado{background:#101827;color:white;border-radius:16px;padding:20px}
 .resultado small{color:#cbd5e1}
 .valor{font-size:32px;font-weight:bold;color:#86efac;margin:8px 0 16px;overflow-wrap:anywhere}
 .resumo{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid #ffffff24;font-size:14px}
 .aviso{color:#64748b;font-size:12px;line-height:1.5}
+.status{font-size:13px;margin-top:12px;line-height:1.5}
 footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
 @media(max-width:420px){.linha{gap:9px}.card{padding:15px}h1{font-size:23px}}
 </style>
@@ -41,15 +43,15 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
 </div>
 </header>
 <main>
-
 <section class="card">
 <h2 class="titulo">📍 Dados da viagem</h2>
 <label for="origem">Endereço de origem</label>
-<input id="origem" placeholder="Ex.: Nova Odessa, SP">
+<input id="origem" placeholder="Cidade ou endereço de saída">
 <label for="destino">Endereço de destino</label>
-<input id="destino" placeholder="Ex.: Aeroporto de Viracopos, Campinas">
-<button class="botao primario" id="calcularRota" style="margin-top:17px">Calcular rota</button>
-<p class="aviso">Na próxima etapa vamos ativar o cálculo da distância.</p>
+<input id="destino" placeholder="Cidade ou endereço de chegada">
+<button class="botao primario" id="calcularRota" style="margin-top:17px">Conferir dados da rota</button>
+<div id="statusRota" class="status"></div>
+<p class="aviso">A distância pode ser informada manualmente nesta versão. A conexão com mapas será adicionada separadamente.</p>
 </section>
 
 <section class="card">
@@ -66,7 +68,6 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
 <input id="combustivel" type="number" min="0" step="0.01" value="6.00">
 </div>
 </div>
-<p class="aviso">Ajuste o consumo e o preço conforme seu uso real.</p>
 </section>
 
 <section class="card">
@@ -74,7 +75,7 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
 <div class="linha">
 <div>
 <label for="distancia">Distância (km)</label>
-<input id="distancia" type="number" min="0" step="0.1" placeholder="A calcular">
+<input id="distancia" type="number" min="0" step="0.1" placeholder="Informe os km">
 </div>
 <div>
 <label for="pedagios">Pedágios (R$)</label>
@@ -91,6 +92,7 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
 <input id="porcentagem" type="number" min="0" step="1" value="30">
 </div>
 </div>
+<button class="botao primario" id="recalcular" style="margin-top:18px">Calcular valor da viagem</button>
 </section>
 
 <section class="card">
@@ -98,19 +100,21 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
 <div class="resultado">
 <small>VALOR RECOMENDADO PARA COBRAR</small>
 <div class="valor" id="valorFinal">R$ 0,00</div>
+<div class="resumo"><span>Distância</span><strong id="resumoKm">0 km</strong></div>
 <div class="resumo"><span>Combustível</span><strong id="custoCombustivel">R$ 0,00</strong></div>
 <div class="resumo"><span>Pedágios</span><strong id="custoPedagios">R$ 0,00</strong></div>
 <div class="resumo"><span>Outros custos</span><strong id="custoExtras">R$ 0,00</strong></div>
 <div class="resumo"><span>Custo total</span><strong id="custoTotal">R$ 0,00</strong></div>
-<div class="resumo"><span>Seu ganho estimado</span><strong id="lucro">R$ 0,00</strong></div>
+<div class="resumo"><span>Ganho acrescentado</span><strong id="lucro">R$ 0,00</strong></div>
 </div>
-<p class="aviso">Os cálculos serão ativados na próxima etapa.</p>
+<p class="aviso">O ganho é calculado como acréscimo sobre o custo total.</p>
+<button class="botao secundario" id="limpar" style="margin-top:12px">Nova viagem</button>
 </section>
-
 <footer>Calculadora de Rotas • Controle seus custos e seu ganho</footer>
 </main>
-<!-- O código continua na parte 2 -->
-  
+</body>
+</html>
+
 <script>
 const campo = id => document.getElementById(id);
 
@@ -134,17 +138,30 @@ function calcular() {
   const extras = numero("extras");
   const porcentagem = numero("porcentagem");
 
-  const litros = consumo > 0 ? km / consumo : 0;
-  const custoCombustivel = litros * precoLitro;
-  const custoTotal = custoCombustivel + pedagios + extras;
+  const custoCombustivel =
+    consumo > 0 ? (km / consumo) * precoLitro : 0;
+
+  const custoTotal =
+    custoCombustivel + pedagios + extras;
+
   const ganho = custoTotal * porcentagem / 100;
   const valorFinal = custoTotal + ganho;
 
+  campo("resumoKm").textContent =
+    km.toLocaleString("pt-BR") + " km";
+
   campo("custoCombustivel").textContent =
     dinheiro(custoCombustivel);
-  campo("custoPedagios").textContent = dinheiro(pedagios);
-  campo("custoExtras").textContent = dinheiro(extras);
-  campo("custoTotal").textContent = dinheiro(custoTotal);
+
+  campo("custoPedagios").textContent =
+    dinheiro(pedagios);
+
+  campo("custoExtras").textContent =
+    dinheiro(extras);
+
+  campo("custoTotal").textContent =
+    dinheiro(custoTotal);
+
   campo("lucro").textContent = dinheiro(ganho);
   campo("valorFinal").textContent = dinheiro(valorFinal);
 }
@@ -156,25 +173,41 @@ function calcular() {
   "pedagios",
   "extras",
   "porcentagem"
-].forEach(id => campo(id).addEventListener("input", calcular));
+].forEach(id => {
+  campo(id).addEventListener("input", calcular);
+});
 
 campo("calcularRota").addEventListener("click", () => {
-  if (!campo("origem").value.trim() ||
-      !campo("destino").value.trim()) {
-    alert("Preencha o endereço de origem e o destino.");
+  const origem = campo("origem").value.trim();
+  const destino = campo("destino").value.trim();
+
+  if (!origem || !destino) {
+    campo("statusRota").textContent =
+      "Informe o endereço de origem e o destino.";
     return;
   }
 
-  alert(
-    "Endereços preenchidos! O cálculo automático da rota " +
-    "será conectado na Parte 3. Por enquanto, informe a " +
-    "distância manualmente."
-  );
+  campo("statusRota").textContent =
+    "Origem: " + origem +
+    " | Destino: " + destino +
+    ". Informe a distância em quilômetros para calcular os custos.";
+});
+
+campo("recalcular").addEventListener("click", calcular);
+
+campo("limpar").addEventListener("click", () => {
+  campo("origem").value = "";
+  campo("destino").value = "";
+  campo("distancia").value = "";
+  campo("pedagios").value = "0";
+  campo("extras").value = "0";
+  campo("porcentagem").value = "30";
+  campo("statusRota").textContent = "";
+  calcular();
+  window.scrollTo(0, 0);
 });
 
 calcular();
 </script>
 </body>
 </html>
-
-
