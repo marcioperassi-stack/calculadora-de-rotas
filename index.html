@@ -256,5 +256,78 @@ async function buscarRota() {
   </p>
 </section>
 
+<section class="card" style="margin:16px;padding:18px">
+  <h2>🚗 Custo de manutenção e desgaste</h2>
+  <label for="custoKm">Custo adicional por km (R$)</label>
+  <input id="custoKm" type="number" min="0" step="0.05" value="0.50">
+  <p class="note">
+    Inclui uma estimativa para manutenção, pneus, óleo, filtros e desgaste do veículo.
+  </p>
+</section>
+
+<script>
+function calcular() {
+  const ler = id => {
+    const n = Number(document.getElementById(id).value);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  };
+
+  const distancia = ler("distancia");
+  const consumo = ler("consumo");
+  const precoCombustivel = ler("combustivel");
+  const pedagios = ler("pedagios");
+  const extras = ler("extras");
+  const percentual = ler("percentual");
+  const custoKm = ler("custoKm");
+
+  if (consumo <= 0) {
+    alert("Informe um consumo válido em km/l.");
+    return;
+  }
+
+  const custoCombustivel = distancia / consumo * precoCombustivel;
+  const custoVeiculo = distancia * custoKm;
+  const custos = custoCombustivel + custoVeiculo + pedagios + extras;
+  const ganho = custos * percentual / 100;
+  const total = custos + ganho;
+
+  const moeda = valor => valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+
+  let resultados = document.getElementById("resultados");
+
+  if (!resultados) {
+    resultados = document.createElement("section");
+    resultados.id = "resultados";
+    resultados.className = "card";
+    document.querySelector("main").appendChild(resultados);
+  }
+
+  resultados.innerHTML = `
+    <h2>📊 Resultado da viagem</h2>
+    <div class="result">
+      <p><span>Distância</span><strong>${distancia.toLocaleString("pt-BR")} km</strong></p>
+      <p><span>Combustível</span><strong>${moeda(custoCombustivel)}</strong></p>
+      <p><span>Manutenção e desgaste</span><strong>${moeda(custoVeiculo)}</strong></p>
+      <p><span>Pedágios</span><strong>${moeda(pedagios)}</strong></p>
+      <p><span>Outras despesas</span><strong>${moeda(extras)}</strong></p>
+      <p><span>Custo total</span><strong>${moeda(custos)}</strong></p>
+      <p><span>Ganho (${percentual}%)</span><strong>${moeda(ganho)}</strong></p>
+      <p class="total"><span>Valor sugerido</span><strong>${moeda(total)}</strong></p>
+    </div>
+    <p class="note">Estimativa baseada nos valores informados.</p>
+  `;
+
+  resultados.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+document.getElementById("custoKm").addEventListener("input", () => {
+  const resultados = document.getElementById("resultados");
+  if (resultados) resultados.remove();
+});
+</script>
+
 </body>
 </html>
