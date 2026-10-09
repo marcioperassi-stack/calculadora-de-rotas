@@ -329,5 +329,102 @@ document.getElementById("custoKm").addEventListener("input", () => {
 });
 </script>
 
+<style>
+/* Visual profissional azul */
+body {
+  background: #eef4fb;
+  color: #172b4d;
+}
+
+header {
+  background: linear-gradient(135deg, #10264a, #1769e0);
+  padding: 28px 18px;
+  box-shadow: 0 5px 18px rgba(16, 38, 74, 0.18);
+}
+
+header h1 {
+  color: #ffffff;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+}
+
+main {
+  max-width: 680px;
+  padding: 18px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #dce7f5;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 24px rgba(20, 43, 74, 0.07);
+}
+
+h2 {
+  color: #173b70;
+}
+
+input {
+  border: 1px solid #cbdaf0;
+  background: #fbfdff;
+  border-radius: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+input:focus {
+  outline: 2px solid #bfdbfe;
+  border-color: #1769e0;
+}
+
+button {
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  background: linear-gradient(135deg, #1769e0, #124db3);
+  box-shadow: 0 4px 10px rgba(23, 105, 224, 0.2);
+}
+
+.secondary {
+  background: #e7f0ff;
+  color: #16447d;
+}
+
+#resultados {
+  background: linear-gradient(180deg, #ffffff, #f3f8ff);
+  border: 1px solid #cfe0fb;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.total {
+  color: #0b56bd;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 15px;
+  }
+
+  header h1 {
+    font-size: 23px;
+  }
+}
+</style>
+
 </body>
 </html>
