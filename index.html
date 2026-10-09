@@ -3,211 +3,241 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calculadora de Rotas</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#182230}
-header{background:#101827;color:white;padding:24px 18px}
-.topo,main{max-width:760px;margin:auto}
-.marca{font-size:12px;color:#86efac;font-weight:bold;letter-spacing:2px}
-h1{font-size:25px;margin:10px 0 6px}
-header p{color:#cbd5e1;font-size:14px;margin:0}
-main{padding:20px 14px 35px}
-.card{background:white;border:1px solid #e2e8f0;border-radius:17px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px #0f172a08}
-.titulo{font-size:17px;font-weight:bold;margin:0 0 16px}
-label{display:block;font-size:13px;font-weight:bold;margin:13px 0 7px}
-input{width:100%;min-width:0;padding:13px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;background:white;color:#182230}
-input:focus{outline:2px solid #86efac;border-color:#16a34a}
-.linha{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.botao{width:100%;border:0;border-radius:11px;padding:15px;font-size:16px;font-weight:bold;cursor:pointer}
-.primario{background:#16a34a;color:white}
-.secundario{background:#e2e8f0;color:#101827}
-.resultado{background:#101827;color:white;border-radius:16px;padding:20px}
-.resultado small{color:#cbd5e1}
-.valor{font-size:32px;font-weight:bold;color:#86efac;margin:8px 0 16px;overflow-wrap:anywhere}
-.resumo{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid #ffffff24;font-size:14px}
-.aviso{color:#64748b;font-size:12px;line-height:1.5}
-.status{font-size:13px;margin-top:12px;line-height:1.5}
-footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
-@media(max-width:420px){.linha{gap:9px}.card{padding:15px}h1{font-size:23px}}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+header{background:#142b4a;color:white;padding:22px 18px}
+header h1{margin:0;font-size:24px}
+header p{margin:8px 0 0;color:#dbeafe;font-size:14px}
+main{max-width:650px;margin:auto;padding:16px}
+.card{background:white;padding:18px;border-radius:16px;margin-bottom:16px;box-shadow:0 3px 12px #0000000d}
+h2{font-size:18px;margin:0 0 16px}
+label{display:block;font-size:14px;font-weight:bold;margin:12px 0 6px}
+input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;background:#fff;color:#172033}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{width:100%;border:0;border-radius:10px;padding:14px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:14px}
+.primary{background:#1769e0;color:white}
+.secondary{background:#e5edf8;color:#17365d}
+button:disabled{opacity:.6}
+.note{font-size:12px;color:#64748b;line-height:1.5}
+.result{background:#edf6ff;border-radius:12px;padding:14px;margin-top:12px}
+.result p{display:flex;justify-content:space-between;gap:12px;margin:10px 0}
+.result strong{ text-align:right}
+.total{font-size:21px;color:#0755b8;font-weight:bold}
+.status{font-size:13px;line-height:1.5;margin-top:10px;color:#475569}
+@media(max-width:420px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
-<div class="topo">
-<div class="marca">FERRAMENTA DO MOTORISTA</div>
 <h1>Calculadora de Rotas</h1>
-<p>Calcule seus custos e descubra quanto cobrar.</p>
-</div>
+<p>Calcule os custos e quanto cobrar pela viagem.</p>
 </header>
 <main>
 <section class="card">
-<h2 class="titulo">📍 Dados da viagem</h2>
+<h2>📍 Origem e destino</h2>
 <label for="origem">Endereço de origem</label>
-<input id="origem" placeholder="Cidade ou endereço de saída">
+<input id="origem" placeholder="Ex.: Centro, Nova Odessa, SP">
 <label for="destino">Endereço de destino</label>
-<input id="destino" placeholder="Cidade ou endereço de chegada">
-<button class="botao primario" id="calcularRota" style="margin-top:17px">Conferir dados da rota</button>
-<div id="statusRota" class="status"></div>
-<p class="aviso">A distância pode ser informada manualmente nesta versão. A conexão com mapas será adicionada separadamente.</p>
+<input id="destino" placeholder="Ex.: Centro, Campinas, SP">
+<button class="primary" id="btnRota" onclick="buscarRota()">Buscar distância automaticamente</button>
+<p class="note">Informe endereços completos, com cidade e estado, para melhorar a busca.</p>
+<div id="statusRota" class="status">A distância ainda não foi calculada.</div>
 </section>
 
 <section class="card">
-<h2 class="titulo">🚘 Configuração do veículo</h2>
-<label for="veiculo">Veículo</label>
-<input id="veiculo" value="Renault Sandero 2021 1.0">
-<div class="linha">
+<h2>🚗 Veículo e despesas</h2>
+<label for="distancia">Distância da viagem (km)</label>
+<input id="distancia" type="number" min="0" step="0.1" value="0">
+
+<div class="grid">
 <div>
 <label for="consumo">Consumo (km/l)</label>
 <input id="consumo" type="number" min="0.1" step="0.1" value="10">
 </div>
 <div>
-<label for="combustivel">Preço por litro (R$)</label>
-<input id="combustivel" type="number" min="0" step="0.01" value="6.00">
+<label for="combustivel">Combustível (R$/l)</label>
+<input id="combustivel" type="number" min="0" step="0.01" value="6">
 </div>
 </div>
-</section>
 
-<section class="card">
-<h2 class="titulo">💰 Custos e ganho</h2>
-<div class="linha">
-<div>
-<label for="distancia">Distância (km)</label>
-<input id="distancia" type="number" min="0" step="0.1" placeholder="Informe os km">
-</div>
+<div class="grid">
 <div>
 <label for="pedagios">Pedágios (R$)</label>
 <input id="pedagios" type="number" min="0" step="0.01" value="0">
 </div>
-</div>
-<div class="linha">
 <div>
-<label for="extras">Outros custos (R$)</label>
+<label for="extras">Outras despesas (R$)</label>
 <input id="extras" type="number" min="0" step="0.01" value="0">
 </div>
-<div>
-<label for="porcentagem">Ganho (%)</label>
-<input id="porcentagem" type="number" min="0" step="1" value="30">
 </div>
-</div>
-<button class="botao primario" id="recalcular" style="margin-top:18px">Calcular valor da viagem</button>
-</section>
 
-<section class="card">
-<h2 class="titulo">📊 Resultado da viagem</h2>
-<div class="resultado">
-<small>VALOR RECOMENDADO PARA COBRAR</small>
-<div class="valor" id="valorFinal">R$ 0,00</div>
-<div class="resumo"><span>Distância</span><strong id="resumoKm">0 km</strong></div>
-<div class="resumo"><span>Combustível</span><strong id="custoCombustivel">R$ 0,00</strong></div>
-<div class="resumo"><span>Pedágios</span><strong id="custoPedagios">R$ 0,00</strong></div>
-<div class="resumo"><span>Outros custos</span><strong id="custoExtras">R$ 0,00</strong></div>
-<div class="resumo"><span>Custo total</span><strong id="custoTotal">R$ 0,00</strong></div>
-<div class="resumo"><span>Ganho acrescentado</span><strong id="lucro">R$ 0,00</strong></div>
-</div>
-<p class="aviso">O ganho é calculado como acréscimo sobre o custo total.</p>
-<button class="botao secundario" id="limpar" style="margin-top:12px">Nova viagem</button>
+<label for="percentual">Ganho desejado (%)</label>
+<input id="percentual" type="number" min="0" step="1" value="30">
+<button class="primary" id="btnCalcular" onclick="calcular()">Calcular valor da viagem</button>
 </section>
-<footer>Calculadora de Rotas • Controle seus custos e seu ganho</footer>
 </main>
 </body>
 </html>
 
 <script>
-const campo = id => document.getElementById(id);
+function numero(id) {
+  const valor = Number(document.getElementById(id).value);
+  return Number.isFinite(valor) && valor >= 0 ? valor : 0;
+}
 
-function dinheiro(valor) {
+function moeda(valor) {
   return valor.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL"
   });
 }
 
-function numero(id) {
-  const valor = Number(campo(id).value);
-  return Number.isFinite(valor) && valor >= 0 ? valor : 0;
-}
-
 function calcular() {
-  const km = numero("distancia");
+  const distancia = numero("distancia");
   const consumo = numero("consumo");
-  const precoLitro = numero("combustivel");
+  const precoCombustivel = numero("combustivel");
   const pedagios = numero("pedagios");
   const extras = numero("extras");
-  const porcentagem = numero("porcentagem");
+  const percentual = numero("percentual");
 
-  const custoCombustivel =
-    consumo > 0 ? (km / consumo) * precoLitro : 0;
-
-  const custoTotal =
-    custoCombustivel + pedagios + extras;
-
-  const ganho = custoTotal * porcentagem / 100;
-  const valorFinal = custoTotal + ganho;
-
-  campo("resumoKm").textContent =
-    km.toLocaleString("pt-BR") + " km";
-
-  campo("custoCombustivel").textContent =
-    dinheiro(custoCombustivel);
-
-  campo("custoPedagios").textContent =
-    dinheiro(pedagios);
-
-  campo("custoExtras").textContent =
-    dinheiro(extras);
-
-  campo("custoTotal").textContent =
-    dinheiro(custoTotal);
-
-  campo("lucro").textContent = dinheiro(ganho);
-  campo("valorFinal").textContent = dinheiro(valorFinal);
-}
-
-[
-  "distancia",
-  "consumo",
-  "combustivel",
-  "pedagios",
-  "extras",
-  "porcentagem"
-].forEach(id => {
-  campo(id).addEventListener("input", calcular);
-});
-
-campo("calcularRota").addEventListener("click", () => {
-  const origem = campo("origem").value.trim();
-  const destino = campo("destino").value.trim();
-
-  if (!origem || !destino) {
-    campo("statusRota").textContent =
-      "Informe o endereço de origem e o destino.";
+  if (consumo <= 0) {
+    alert("Informe um consumo válido em km/l.");
     return;
   }
 
-  campo("statusRota").textContent =
-    "Origem: " + origem +
-    " | Destino: " + destino +
-    ". Informe a distância em quilômetros para calcular os custos.";
-});
+  const litros = distancia / consumo;
+  const custoCombustivel = litros * precoCombustivel;
+  const custos = custoCombustivel + pedagios + extras;
+  const ganho = custos * percentual / 100;
+  const total = custos + ganho;
 
-campo("recalcular").addEventListener("click", calcular);
+  let resultados = document.getElementById("resultados");
 
-campo("limpar").addEventListener("click", () => {
-  campo("origem").value = "";
-  campo("destino").value = "";
-  campo("distancia").value = "";
-  campo("pedagios").value = "0";
-  campo("extras").value = "0";
-  campo("porcentagem").value = "30";
-  campo("statusRota").textContent = "";
-  calcular();
-  window.scrollTo(0, 0);
-});
+  if (!resultados) {
+    resultados = document.createElement("section");
+    resultados.id = "resultados";
+    resultados.className = "card";
+    document.querySelector("main").appendChild(resultados);
+  }
 
-calcular();
+  resultados.innerHTML = `
+    <h2>📊 Resultado da viagem</h2>
+    <div class="result">
+      <p><span>Distância</span><strong>${distancia.toLocaleString("pt-BR")} km</strong></p>
+      <p><span>Combustível estimado</span><strong>${moeda(custoCombustivel)}</strong></p>
+      <p><span>Pedágios</span><strong>${moeda(pedagios)}</strong></p>
+      <p><span>Outras despesas</span><strong>${moeda(extras)}</strong></p>
+      <p><span>Custo total</span><strong>${moeda(custos)}</strong></p>
+      <p><span>Ganho (${percentual}%)</span><strong>${moeda(ganho)}</strong></p>
+      <p class="total"><span>Valor sugerido</span><strong>${moeda(total)}</strong></p>
+    </div>
+    <p class="note">Estimativa baseada nos valores informados. Pedágios e outros custos devem ser conferidos.</p>
+  `;
+
+  resultados.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+["distancia", "consumo", "combustivel", "pedagios", "extras", "percentual"]
+  .forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+      const resultados = document.getElementById("resultados");
+      if (resultados) resultados.remove();
+    });
+  });
 </script>
+</body>
+</html>
+
+<script>
+async function buscarRota() {
+  const origem = document.getElementById("origem").value.trim();
+  const destino = document.getElementById("destino").value.trim();
+  const status = document.getElementById("statusRota");
+  const botao = document.getElementById("btnRota");
+
+  if (!origem || !destino) {
+    alert("Informe o endereço de origem e o destino.");
+    return;
+  }
+
+  botao.disabled = true;
+  botao.textContent = "Buscando rota...";
+  status.textContent = "Localizando os endereços...";
+
+  try {
+    async function localizar(endereco) {
+      const url =
+        "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=" +
+        encodeURIComponent(endereco + ", Brasil");
+
+      const resposta = await fetch(url);
+
+      if (!resposta.ok) {
+        throw new Error("O serviço de endereços está indisponível. Tente novamente.");
+      }
+
+      const dados = await resposta.json();
+
+      if (!dados.length) {
+        throw new Error("Endereço não encontrado: " + endereco);
+      }
+
+      return {
+        lat: Number(dados[0].lat),
+        lon: Number(dados[0].lon)
+      };
+    }
+
+    const pontoA = await localizar(origem);
+
+    status.textContent = "Localizando o destino...";
+    await new Promise(resolve => setTimeout(resolve, 1100));
+
+    const pontoB = await localizar(destino);
+
+    status.textContent = "Calculando a distância da viagem...";
+
+    const urlRota =
+      "https://router.project-osrm.org/route/v1/driving/" +
+      pontoA.lon + "," + pontoA.lat + ";" +
+      pontoB.lon + "," + pontoB.lat +
+      "?overview=false";
+
+    const respostaRota = await fetch(urlRota);
+
+    if (!respostaRota.ok) {
+      throw new Error("Não foi possível consultar o serviço de rotas.");
+    }
+
+    const dadosRota = await respostaRota.json();
+
+    if (dadosRota.code !== "Ok" || !dadosRota.routes.length) {
+      throw new Error("Não foi encontrada uma rota para esses endereços.");
+    }
+
+    const km = dadosRota.routes[0].distance / 1000;
+
+    document.getElementById("distancia").value = km.toFixed(1);
+
+    calcular();
+
+    status.textContent =
+      "Rota encontrada! Distância aproximada: " +
+      km.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) +
+      " km. Confira se os endereços estão corretos.";
+
+  } catch (erro) {
+    status.textContent = erro.message;
+    alert(erro.message);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "Buscar distância automaticamente";
+  }
+}
+</script>
+
 </body>
 </html>
