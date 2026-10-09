@@ -1,1 +1,181 @@
 
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Calculadora de Rotas</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#182230}
+header{background:#101827;color:white;padding:24px 18px}
+.topo,main{max-width:760px;margin:auto}
+.marca{font-size:12px;color:#86efac;font-weight:bold;letter-spacing:2px}
+h1{font-size:25px;margin:10px 0 6px}
+header p{color:#cbd5e1;font-size:14px;margin:0}
+main{padding:20px 14px 35px}
+.card{background:white;border:1px solid #e2e8f0;border-radius:17px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px #0f172a08}
+.titulo{font-size:17px;font-weight:bold;margin:0 0 16px}
+label{display:block;font-size:13px;font-weight:bold;margin:13px 0 7px}
+input{width:100%;min-width:0;padding:13px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;background:white;color:#182230}
+input:focus{outline:2px solid #86efac}
+.linha{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.botao{width:100%;border:0;border-radius:11px;padding:15px;font-size:16px;font-weight:bold;cursor:pointer}
+.primario{background:#16a34a;color:white}
+.resultado{background:#101827;color:white;border-radius:16px;padding:20px}
+.resultado small{color:#cbd5e1}
+.valor{font-size:32px;font-weight:bold;color:#86efac;margin:8px 0 16px;overflow-wrap:anywhere}
+.resumo{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid #ffffff24;font-size:14px}
+.aviso{color:#64748b;font-size:12px;line-height:1.5}
+footer{text-align:center;color:#64748b;font-size:12px;padding:10px}
+@media(max-width:420px){.linha{gap:9px}.card{padding:15px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<header>
+<div class="topo">
+<div class="marca">FERRAMENTA DO MOTORISTA</div>
+<h1>Calculadora de Rotas</h1>
+<p>Calcule seus custos e descubra quanto cobrar.</p>
+</div>
+</header>
+<main>
+
+<section class="card">
+<h2 class="titulo">📍 Dados da viagem</h2>
+<label for="origem">Endereço de origem</label>
+<input id="origem" placeholder="Ex.: Nova Odessa, SP">
+<label for="destino">Endereço de destino</label>
+<input id="destino" placeholder="Ex.: Aeroporto de Viracopos, Campinas">
+<button class="botao primario" id="calcularRota" style="margin-top:17px">Calcular rota</button>
+<p class="aviso">Na próxima etapa vamos ativar o cálculo da distância.</p>
+</section>
+
+<section class="card">
+<h2 class="titulo">🚘 Configuração do veículo</h2>
+<label for="veiculo">Veículo</label>
+<input id="veiculo" value="Renault Sandero 2021 1.0">
+<div class="linha">
+<div>
+<label for="consumo">Consumo (km/l)</label>
+<input id="consumo" type="number" min="0.1" step="0.1" value="10">
+</div>
+<div>
+<label for="combustivel">Preço por litro (R$)</label>
+<input id="combustivel" type="number" min="0" step="0.01" value="6.00">
+</div>
+</div>
+<p class="aviso">Ajuste o consumo e o preço conforme seu uso real.</p>
+</section>
+
+<section class="card">
+<h2 class="titulo">💰 Custos e ganho</h2>
+<div class="linha">
+<div>
+<label for="distancia">Distância (km)</label>
+<input id="distancia" type="number" min="0" step="0.1" placeholder="A calcular">
+</div>
+<div>
+<label for="pedagios">Pedágios (R$)</label>
+<input id="pedagios" type="number" min="0" step="0.01" value="0">
+</div>
+</div>
+<div class="linha">
+<div>
+<label for="extras">Outros custos (R$)</label>
+<input id="extras" type="number" min="0" step="0.01" value="0">
+</div>
+<div>
+<label for="porcentagem">Ganho (%)</label>
+<input id="porcentagem" type="number" min="0" step="1" value="30">
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2 class="titulo">📊 Resultado da viagem</h2>
+<div class="resultado">
+<small>VALOR RECOMENDADO PARA COBRAR</small>
+<div class="valor" id="valorFinal">R$ 0,00</div>
+<div class="resumo"><span>Combustível</span><strong id="custoCombustivel">R$ 0,00</strong></div>
+<div class="resumo"><span>Pedágios</span><strong id="custoPedagios">R$ 0,00</strong></div>
+<div class="resumo"><span>Outros custos</span><strong id="custoExtras">R$ 0,00</strong></div>
+<div class="resumo"><span>Custo total</span><strong id="custoTotal">R$ 0,00</strong></div>
+<div class="resumo"><span>Seu ganho estimado</span><strong id="lucro">R$ 0,00</strong></div>
+</div>
+<p class="aviso">Os cálculos serão ativados na próxima etapa.</p>
+</section>
+
+<footer>Calculadora de Rotas • Controle seus custos e seu ganho</footer>
+</main>
+<!-- 
+
+<script>
+const campo = id => document.getElementById(id);
+
+function dinheiro(valor) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function numero(id) {
+  const valor = Number(campo(id).value);
+  return Number.isFinite(valor) && valor >= 0 ? valor : 0;
+}
+
+function calcular() {
+  const km = numero("distancia");
+  const consumo = numero("consumo");
+  const precoLitro = numero("combustivel");
+  const pedagios = numero("pedagios");
+  const extras = numero("extras");
+  const porcentagem = numero("porcentagem");
+
+  const litros = consumo > 0 ? km / consumo : 0;
+  const custoCombustivel = litros * precoLitro;
+  const custoTotal = custoCombustivel + pedagios + extras;
+  const ganho = custoTotal * porcentagem / 100;
+  const valorFinal = custoTotal + ganho;
+
+  campo("custoCombustivel").textContent =
+    dinheiro(custoCombustivel);
+  campo("custoPedagios").textContent = dinheiro(pedagios);
+  campo("custoExtras").textContent = dinheiro(extras);
+  campo("custoTotal").textContent = dinheiro(custoTotal);
+  campo("lucro").textContent = dinheiro(ganho);
+  campo("valorFinal").textContent = dinheiro(valorFinal);
+}
+
+[
+  "distancia",
+  "consumo",
+  "combustivel",
+  "pedagios",
+  "extras",
+  "porcentagem"
+].forEach(id => campo(id).addEventListener("input", calcular));
+
+campo("calcularRota").addEventListener("click", () => {
+  if (!campo("origem").value.trim() ||
+      !campo("destino").value.trim()) {
+    alert("Preencha o endereço de origem e o destino.");
+    return;
+  }
+
+  alert(
+    "Endereços preenchidos! O cálculo automático da rota " +
+    "será conectado na Parte 3. Por enquanto, informe a " +
+    "distância manualmente."
+  );
+});
+
+calcular();
+</script>
+</body>
+</html>
+
+
